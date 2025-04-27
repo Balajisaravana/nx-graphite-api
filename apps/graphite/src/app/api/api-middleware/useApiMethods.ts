@@ -1,10 +1,7 @@
 import { ApiRequestConfig } from "./types";
 import useApiRequest from "./useApiRequest";
 
-// cons and pros b/w useFetcher and axios
-//pass default object
 // ✅ Specific API Methods
-
 
 const Api = {
   get : <T = unknown>(url: string,apiName:string, configs?: ApiRequestConfig) =>

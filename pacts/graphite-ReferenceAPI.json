@@ -1,0 +1,173 @@
+{
+  "consumer": {
+    "name": "graphite"
+  },
+  "interactions": [
+    {
+      "description": "a DELETE request to /api/reference-tables/12345",
+      "providerState": "a reference table exists to be deleted",
+      "request": {
+        "method": "DELETE",
+        "path": "/api/reference-tables/12345"
+      },
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "description": "a GET request to /api/reference-tables",
+      "providerState": "reference tables exist",
+      "request": {
+        "method": "GET",
+        "path": "/api/reference-tables"
+      },
+      "response": {
+        "body": [
+          {
+            "editable": true,
+            "is_favorite": false,
+            "priority": "high",
+            "reference_table_id": "99f76c98-096c-4525-a344-7b7f4fa4cfd2",
+            "reference_table_name": "Aba Participant Map"
+          },
+          {
+            "editable": false,
+            "is_favorite": false,
+            "priority": "high",
+            "reference_table_id": "ac0a264f-4a44-43d9-9736-64e66260777f",
+            "reference_table_name": "Aba Transits"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a GET request to /reference-tables",
+      "providerState": "reference tables exist",
+      "request": {
+        "method": "GET",
+        "path": "/api/reference-tables"
+      },
+      "response": {
+        "body": [
+          {
+            "editable": true,
+            "is_favorite": false,
+            "priority": "high",
+            "reference_table_id": "99f76c98-096c-4525-a344-7b7f4fa4cfd2",
+            "reference_table_name": "Aba Participant Map"
+          },
+          {
+            "editable": false,
+            "is_favorite": false,
+            "priority": "high",
+            "reference_table_id": "ac0a264f-4a44-43d9-9736-64e66260777f",
+            "reference_table_name": "Aba Transits"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    },
+    {
+      "description": "a POST request to /api/reference-tables",
+      "providerState": "ready to create a new reference table",
+      "request": {
+        "body": {
+          "editable": true,
+          "is_favorite": false,
+          "priority": "medium",
+          "reference_table_name": "New Reference Table"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/reference-tables"
+      },
+      "response": {
+        "body": {
+          "editable": true,
+          "is_favorite": false,
+          "priority": "medium",
+          "reference_table_id": "12345",
+          "reference_table_name": "New Reference Table"
+        },
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "status": 201
+      }
+    },
+    {
+      "description": "a PUT request to /api/reference-tables/12345",
+      "providerState": "a reference table exists to be updated",
+      "request": {
+        "body": {
+          "editable": false,
+          "is_favorite": true,
+          "priority": "low",
+          "reference_table_name": "Updated Reference Table"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "method": "PUT",
+        "path": "/api/reference-tables/12345"
+      },
+      "response": {
+        "body": {
+          "editable": false,
+          "is_favorite": true,
+          "priority": "low",
+          "reference_table_id": "12345",
+          "reference_table_name": "Updated Reference Table"
+        },
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "15.0.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "provider": {
+    "name": "ReferenceAPI"
+  }
+}

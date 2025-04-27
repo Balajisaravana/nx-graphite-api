@@ -2,9 +2,13 @@ import { useState } from "react";
 import useRefData from "../../hooks/useRefData";
 import GridHandlaer from "../../components/ReferenceItemBox/GridLayout";
 import { SALTFlexLayout } from "../../components";
-
+import { useSelector } from "react-redux";
+import ApiNames from "../../api/ApiNames";
 const ReferenceData = () => {
   const { highCriticality, lowCriticality, mediumCriticality } = useRefData();
+  const state = useSelector((state: any) => state);
+  console.log("state", state);
+
   const [active, setActive] = useState(true);
   const handleActiveToggle = () => {
     setActive((current: any) => !current);

@@ -1,5 +1,8 @@
 {
   "name": "@photon/graphite",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@pact-foundation/pact-node": "^10.18.0"
+  }
 }

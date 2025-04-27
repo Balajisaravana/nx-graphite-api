@@ -8,10 +8,16 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 const app = express();
 // app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+// app.use(cors({
+//   origin: "http://localhost:4200",
+//   credentials : true
+// }));
 app.use(cors({
-  origin: '*',
-  credentials : true
-}));
+  origin: "http://localhost:4200",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+}))
+
 
 app.get("/", (req, res) => {
   res.send({ message: "Welcome to Graphite Service!" });

@@ -3,7 +3,12 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import { DefaultsApiConfigs } from "./types";
+import { ApiError, DefaultsApiConfigs } from "./types";
+import { sendApiEvent } from "../splunk";
+import apiErrorHandler from "./apiErrorHandler";
+import { ApiActions } from "../../store/middlewareSlice";
+import { store } from "../../store";
+import { getCookie } from "../../utils";
 
 class ApiMiddleware {
   private static defaultConfig: DefaultsApiConfigs = {
@@ -33,16 +38,16 @@ class ApiMiddleware {
     // 🔹 Request Interceptor
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        console.log("Outgoing Request:", config);
+       
         // Example: Add auth token dynamically
-        const token = localStorage.getItem("authToken");
+        const token = getCookie('token');
+        // const token = localStorage.getItem("authToken"); /* Storing in local storage is not safe || or not defined Properly */
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+          config.headers.Authorization = `Bearer ${token}`; 
         }
         return config;
       },
       (error) => {
-        console.error("Request Error:", error);
         return Promise.reject(error);
       }
     );
@@ -50,15 +55,11 @@ class ApiMiddleware {
     // 🔹 Response Interceptor
     this.axiosInstance.interceptors.response.use(
       (response: AxiosResponse) => {
-        console.log("Response Received:", response);
         return response;
       },
       (error) => {
-        console.error("Response Error:", error);
-        // Example: Handle 401 Unauthorized globally
-        if (error.response?.status === 401) {
-          console.warn("Unauthorized! Redirecting to login...");
-          window.location.href = "/login"; // Redirect to login
+        if (error.response?.status === 401) { 
+          window.location.href = "/login"; 
         }
         return Promise.reject(error);
       }
@@ -81,6 +82,10 @@ class ApiMiddleware {
     data?: unknown;
     configs?: AxiosRequestConfig;
   }): Promise<T> {
+    const startTime = new Date().getTime();
+    const timestamp = new Date().toISOString();
+    const userId = localStorage.getItem("userId") || "unknown";
+ 
     try {
       const response = await this.axiosInstance.request<T>({
         method,
@@ -88,11 +93,28 @@ class ApiMiddleware {
         data,
         ...configs,
       });
+ 
+      const endTime = new Date().getTime();
+      const responseTime = `${endTime - startTime}ms`;
+ 
+      // Send success event to splunkApi
+      sendApiEvent({
+        request: data || {},
+        response: response,
+        timestamp,
+        userId,
+        url,
+        responseTime,
+        status: "SUCCESS",
+      });
+ 
       return response.data;
     } catch (error) {
-      throw error;
+      const apiError = apiErrorHandler(error);
+      throw apiError
     }
   }
+
 }
 
 export default ApiMiddleware;

@@ -1,10 +1,10 @@
-import {  useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ApiMiddleware from ".";
 import apiErrorHandler from "./apiErrorHandler";
 import { ApiRequestConfig } from "./types";
 import { RootState } from "../../store";
-import { ApiActions } from "../../store/middlewareSlice";
+import { ApiActions, errorMocks } from "../../store/middlewareSlice";
 import type { ApiError } from "./types";
 
 const useApiRequest = <T>(
@@ -15,6 +15,11 @@ const useApiRequest = <T>(
   configs?: ApiRequestConfig
 ) => {
   const dispatch = useDispatch();
+  const defaultState = {
+    responseData: null,
+    loading: false,
+    error: [],
+  };
 
   // Optional chaining to avoid undefined crash
   const currentState = useSelector(
@@ -22,8 +27,8 @@ const useApiRequest = <T>(
   ) as {
     responseData: T | null;
     loading: boolean;
-    error: ApiError | null;
-  } | undefined;
+    error: ApiError[] ;
+  } ;
 
   const middleware = useMemo(() => new ApiMiddleware(configs?.overriddenConfig), [
     configs?.overriddenConfig,
@@ -31,9 +36,16 @@ const useApiRequest = <T>(
 
   const load = useCallback(async () => {
     if (!currentState) {
+      dispatch(ApiActions.initApiStore({
+        apiName,
+        responseData: null,
+        loading: true,
+        error: [],
+      }));
+    } else {
       dispatch(ApiActions.setApiLoading({ apiName, loading: true }));
     }
-
+   
     try {
       const result = await middleware.request<T>({
         method,
@@ -48,12 +60,12 @@ const useApiRequest = <T>(
             apiName,
             responseData: result as T,
             loading: false,
-            error: null,
+            error: [],
           })
         );
       }
-    } catch (err) {
-      dispatch(ApiActions.setApiError({ apiName, error: apiErrorHandler(err) }));
+    } catch (err) {   
+      dispatch(ApiActions.setApiError({ apiName, error: err as ApiError }));
     } finally {
       dispatch(ApiActions.setApiLoading({ apiName, loading: false }));
     }
@@ -65,11 +77,18 @@ const useApiRequest = <T>(
 
   useEffect(() => {
     const refreshInterval = middleware.mergedConfigs.refreshInterval;
+    let interval: NodeJS.Timeout | undefined;
     if (refreshInterval && refreshInterval > 1000) {
-      const interval = setInterval(load, refreshInterval);
+       interval = setInterval(load, refreshInterval);
       return () => clearInterval(interval);
     }
-    return () => {};
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+
   }, [middleware, load]);
 
   return {
